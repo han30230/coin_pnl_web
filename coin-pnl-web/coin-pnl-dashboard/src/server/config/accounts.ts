@@ -6,6 +6,8 @@ export type ExchangeAccount = Readonly<{
   accountId: string;
   exchange: Exchange;
   label: string;
+  /** Optional note shown in Analytics (e.g. strategy name). Set BINANCE_STRATEGY / BINANCE_STRATEGY_<SUFFIX>. */
+  strategy?: string;
   apiKey: string;
   apiSecret: string;
 }>;
@@ -80,6 +82,13 @@ function accountIdFromSuffix(exchange: Exchange, suffix: string) {
   return `${exchange}:${suffix ? suffix.toLowerCase() : "default"}`;
 }
 
+function strategyFromSuffix(env: Record<string, string | undefined>, exchange: Exchange, suffix: string) {
+  const prefix = exchange === "binance" ? "BINANCE" : "BYBIT";
+  const key = suffix ? `${prefix}_STRATEGY_${suffix}` : `${prefix}_STRATEGY`;
+  const v = env[key]?.trim();
+  return v || undefined;
+}
+
 export function getExchangeAccountsFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): ExchangeAccount[] {
@@ -104,6 +113,7 @@ export function getExchangeAccountsFromEnv(
       accountId: accountIdFromSuffix(p.exchange, p.suffix),
       exchange: p.exchange,
       label: labelFromSuffix(p.exchange, p.suffix),
+      strategy: strategyFromSuffix(plainEnv, p.exchange, p.suffix),
       apiKey,
       apiSecret,
     });

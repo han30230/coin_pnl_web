@@ -31,6 +31,7 @@ export async function GET(req: Request) {
     accountId: a.accountId,
     exchange: a.exchange,
     label: a.label,
+    strategy: a.strategy,
   }));
 
   const { snapshots, errors } = await fetchSnapshots({
